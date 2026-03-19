@@ -8,13 +8,12 @@ import com.dynatrace.pong.dto.EndGameRequest;
 import com.dynatrace.pong.dto.GameRequest;
 import com.dynatrace.pong.dto.GameResponse;
 import com.dynatrace.pong.dto.PlayerResponse;
+import com.dynatrace.pong.exception.EqualScoreException;
 import com.dynatrace.pong.exception.PlayerNotFoundException;
 import com.dynatrace.pong.exception.TwoSamePlayersException;
 import com.dynatrace.pong.model.Game;
-import com.dynatrace.pong.model.Player;
 import com.dynatrace.pong.repository.GameRepository;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,19 +55,27 @@ public class GameService {
         return toResponse(game);
     }
 
-    private GameResponse toResponse(Game game) {
-        return new GameResponse(game.getId(), game.getFirstPlayer(), game.getSecondPlayer(), game.getWinner());
-    }
-
     public GameResponse endGame(Long id, EndGameRequest request) {
         Game game = gameRepository.findById(id)
                 .orElseThrow(() -> new PlayerNotFoundException(id));
 
+        if (request.firstPlayerScore() == request.secondPlayerScore()) {
+            throw new EqualScoreException(id);
+        }
+
         game.setFirstPlayerScore(request.firstPlayerScore());
         game.setSecondPlayerScore(request.secondPlayerScore());
+
+        if (game.getFirstPlayerScore() > game.getSecondPlayerScore()) {
+            game.setWinner(game.getFirstPlayer());
+        } else {
+            game.setWinner(game.getSecondPlayer());
+        }
+
+        return toResponse(game);
     }
 
-    private static EndGameRequest getRequest(EndGameRequest request) {
-        return request;
+    private GameResponse toResponse(Game game) {
+        return new GameResponse(game.getId(), game.getFirstPlayer(), game.getSecondPlayer(), game.getWinner());
     }
 }
