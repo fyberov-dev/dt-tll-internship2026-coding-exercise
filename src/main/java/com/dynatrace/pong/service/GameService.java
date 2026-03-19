@@ -1,7 +1,5 @@
 package com.dynatrace.pong.service;
 
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
-
 import java.util.List;
 import java.util.stream.Collectors;
 import com.dynatrace.pong.dto.EndGameRequest;
@@ -9,6 +7,7 @@ import com.dynatrace.pong.dto.GameRequest;
 import com.dynatrace.pong.dto.GameResponse;
 import com.dynatrace.pong.dto.PlayerResponse;
 import com.dynatrace.pong.exception.EqualScoreException;
+import com.dynatrace.pong.exception.GameAlreadyEnded;
 import com.dynatrace.pong.exception.PlayerNotFoundException;
 import com.dynatrace.pong.exception.TwoSamePlayersException;
 import com.dynatrace.pong.model.Game;
@@ -58,6 +57,10 @@ public class GameService {
     public GameResponse endGame(Long id, EndGameRequest request) {
         Game game = gameRepository.findById(id)
                 .orElseThrow(() -> new PlayerNotFoundException(id));
+
+        if (game.getWinner() != null) {
+            throw new GameAlreadyEnded(id);
+        }
 
         if (request.firstPlayerScore() == request.secondPlayerScore()) {
             throw new EqualScoreException(id);

@@ -34,7 +34,12 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(EqualScoreException.class)
-    public ResponseEntity<Map<String, Object>> handleTwoSamePlayers(EqualScoreException ex) {
+    public ResponseEntity<Map<String, Object>> handleEqualScore(EqualScoreException ex) {
+        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(GameAlreadyEnded.class)
+    public ResponseEntity<Map<String, Object>> handleGameAlreadyEnded(GameAlreadyEnded ex) {
         return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
