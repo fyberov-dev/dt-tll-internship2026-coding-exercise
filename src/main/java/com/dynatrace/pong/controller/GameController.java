@@ -44,7 +44,7 @@ public class GameController {
 
     @PostMapping("/{id}")
     public ResponseEntity<GameResponse> endGame(@PathVariable Long id, @Valid @RequestBody EndGameRequest request) {
-        GameResponse response = gameService.endGame(request);
+        GameResponse response = gameService.endGame(id, request);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

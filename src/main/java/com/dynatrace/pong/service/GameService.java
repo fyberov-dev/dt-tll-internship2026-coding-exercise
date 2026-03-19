@@ -1,5 +1,7 @@
 package com.dynatrace.pong.service;
 
+import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
+
 import java.util.List;
 import java.util.stream.Collectors;
 import com.dynatrace.pong.dto.EndGameRequest;
@@ -58,11 +60,15 @@ public class GameService {
         return new GameResponse(game.getId(), game.getFirstPlayer(), game.getSecondPlayer(), game.getWinner());
     }
 
-    public GameResponse endGame(@Valid EndGameRequest request) {
-        Game game = gameRepository.findById(request.)
+    public GameResponse endGame(Long id, EndGameRequest request) {
+        Game game = gameRepository.findById(id)
                 .orElseThrow(() -> new PlayerNotFoundException(id));
 
         game.setFirstPlayerScore(request.firstPlayerScore());
         game.setSecondPlayerScore(request.secondPlayerScore());
+    }
+
+    private static EndGameRequest getRequest(EndGameRequest request) {
+        return request;
     }
 }
